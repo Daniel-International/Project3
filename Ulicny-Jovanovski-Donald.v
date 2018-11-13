@@ -1,4 +1,4 @@
-module CPU (clock,PC, IR, ALUOut, MDR, A, B, reg8);
+module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 	parameter R_FORMAT		= 6'b000000;
 	parameter JUMP	   		= 6'b000010;
 	parameter JUMP_AND_LINK = 6'b000011;
@@ -17,8 +17,8 @@ module CPU (clock,PC, IR, ALUOut, MDR, A, B, reg8);
 	
 	input clock;  //the clock is an external input
 	//Make these datapath registers available outside the module in order to do the testing
-	output PC, IR, ALUOut, MDR, A, B;
-	reg[31:0] PC, IR, ALUOut, MDR, A, B;
+	output PC, IR, ALUOut, MDR, Rs, Rt;
+	reg[31:0] PC, IR, ALUOut, MDR, Rs, Rt;
 
 	
 	// The architecturally visible registers and scratch registers for implementation
@@ -34,7 +34,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, A, B, reg8);
 	
 	
 	wire [31:0] reg8;
-	output [31:0] reg8; //output reg 7 for testing
+	output [31:0] reg8; //output reg 8 for testing
 	assign reg8 = Regs[8]; //output reg 8 (i.e. $t0)
 	
 	
@@ -66,38 +66,70 @@ module CPU (clock,PC, IR, ALUOut, MDR, A, B, reg8);
 				state = 2; //next state
 			end
 				
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//:::::::: This state (2) is what needs to be repeated to fetch Rs and Rt seperatly on different clock cycles.  ::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 			2: begin     //second step: Instruction decode, register fetch, also compute branch address
-				A <= Regs[IR[25:21]];
-				B <= Regs[IR[20:16]];
-				state= 3;
+				Rs <= Regs[IR[25:21]];
+				Rt <= Regs[IR[20:16]];
+				state = 3;
 				ALUOut <= PC + PCOffset; 	// compute PC-relative branch target
 			end
-		
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//:::::::: From here on everything should run find in R_FORMAT as A and B are both set. ::::::::::::::::::::::::::::::::::::::::
+//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 			3: begin     //third step:  Load/Store execution, ALU execution, Branch completion
 				state = 4; // default next state
 				if (opcode == R_FORMAT) 
 					case (IR[5:0]) //case for the various R-type instructions
-						00: ALUOut = B << shamt //shift left logical
-						02: ALUOut = B >> shamt //shift right logical
+						00: ALUOut = Rt << shamt //shift left logical
+						02: ALUOut = Rt >> shamt //shift right logical
 						// 8: ALUOut = ...  	//jump register 
-						32: ALUOut = A + B; 	//add 
-						33: ALUOut = A - B; 	//subtract 
-						36: ALUOut = A & B; 	//logical and
-						37: ALUOut = A | B; 	//logical or
-						39: ALUOut = ~(A | B);	//logical nor
-						42: ALUOut = (A < B) ? 1 : 0; //set less than	
+						32: ALUOut = Rs + Rt; 	//add 
+						33: ALUOut = Rs - Rt; 	//subtract 
+						36: ALUOut = Rs && Rt; 	//logical and
+						37: ALUOut = Rs || Rt; 	//logical or
+						39: ALUOut = ~(Rs || Rt);	//logical nor
+						42: ALUOut = (Rs < Rt) ? 1 : 0; //set less than	
 						// other function fields for R-Format instructions go here
 						//  
 						// 
-						default: ALUOut = A; //other R-type operations
+						default: ALUOut = Rs; //other R-type operations
 					endcase
-				else if ((opcode == LW) |(opcode==SW)) 
-					ALUOut <= A + SignExtend; //compute effective address
+				else if (opcode == JUMP) begin
+					// TODO
+				 end
+				else if (opcode == JUMP_AND_LINK) begin
+					// TODO
+				 end
+				else if (opcode == BNE) begin
+					if (Rs != Rt)
+						PC <= ALUOut;
+					state = 1;
+				 end
 				else if (opcode == BEQ) begin
-					if (A==B)  
+					if (Rs==Rt)  
 						PC <= ALUOut; // branch taken--update PC
 					state = 1;  //  BEQ finished, return to first state
 				 end
+				else if (opcode == ADDI) begin
+					// TODO
+				 end
+				else if (opcode == SLTI) begin
+					// TODO
+				 end
+				else if (opcode == ANDI) begin
+					// TODO
+				 end
+				else if (opcode == ORI) begin
+					// TODO
+				 end
+				else if ((opcode == LW) |(opcode==SW)) 
+					ALUOut <= Rs + SignExtend; //compute effective address
+
+				
 				// implementations of other instructions (such bne, addi, etc.) as go here
 				// else if ... 
 				// ...
@@ -117,7 +149,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, A, B, reg8);
 				end
 				
 				else if (opcode == SW) begin
-					Memory[ALUOut>>2] <= B; // write the memory
+					Memory[ALUOut>>2] <= Rt; // write the memory
 					state = 1; // return to state 1
 				end //store finishes
 				
