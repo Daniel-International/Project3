@@ -93,9 +93,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 						37: ALUOut = Rs || Rt; 		//logical or
 						39: ALUOut = ~(Rs || Rt);	//logical nor
 						42: ALUOut = (Rs < Rt) ? 1 : 0; //set less than	
-						// other function fields for R-Format instructions go here
-						//  
-						// 
+
 						default: ALUOut = Rs; //other R-type operations
 					endcase
 
@@ -119,38 +117,31 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					state = 1;  //  BEQ finished, return to first state
 				end
 
-				else if (opcode == ADDI) begin
-					// TODO
-				end
+				else if (opcode == ADDI)
+					ALUOut <= Rs + SignExtend;
+
 
 				else if (opcode == SLTI) begin
 					// TODO
 				end
 
-				else if (opcode == ANDI) begin
-					// TODO
-				end
+				else if (opcode == ANDI)
+					ALUOut <= Rs && SignExtend;
 
-				else if (opcode == ORI) begin
-					// TODO
-				end
+				else if (opcode == ORI)
+					ALUOut <= Rs || SignExtend;
 
 				else if ((opcode == LW) |(opcode==SW)) 
 					ALUOut <= Rs + SignExtend; //compute effective address
 
-				
-				// implementations of other instructions (such bne, addi, etc.) as go here
-				// else if ... 
-				// ...
-				// else if ...
-				// ...
-			end
+
+			end	// state 3
 		
 			4: begin
 				if (opcode == R_FORMAT) begin //ALU Operation
 					Regs[IR[15:11]] <= ALUOut; // write the result
 					state = 1;
-				end //R-type finishes
+				end // R-type
 				
 				else if (opcode == JUMP) begin
 					// TODO
@@ -160,29 +151,24 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					// TODO
 				end
 
-				else if (opcode == BEQ) begin
-					// TODO
-				end
-
-				else if (opcode == BNE) begin
-					// TODO
-				end
-
 				else if (opcode == ADDI) begin
-					// TODO
-				end
+					Regs[IR[20:16]] <= ALUOut;	// write result
+					state = 1;
+				end	// ADDI
 
 				else if (opcode == SLTI) begin
 					// TODO
 				end
 
 				else if (opcode == ANDI) begin
-					// TODO
-				end
+					Regs[IR[20:16]] <= ALUOut; // write result
+					state = 1;
+				end	// ANDI
 
 				else if (opcode == ORI) begin
-					// TODO
-				end
+					Regs[IR[20:16]] <= ALUOut; // write result
+					state = 1;
+				end	// ORI
 
 				else if (opcode == STORE_BYTE) begin
 					// TODO
@@ -191,20 +177,15 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 				else if (opcode == LW) begin // load instruction
 					MDR <= Memory[ALUOut>>2]; // read the memory
 					state = 5; // next state
-				end
+				end	// LW
 				
 				else if (opcode == SW) begin
 					Memory[ALUOut>>2] <= Rt; // write the memory
 					state = 1; // return to state 1
-				end //store finishes
-				
-				// implementations of other instructions (such as addi, etc.) go here
-				// else if ...
-				// ...
-				// else if ...
-				// ...
+				end // SW
+			
 	
-			end
+			end	// state 4
 		
 			5: begin     //LW is the only instruction still in execution
 				Regs[IR[20:16]] = MDR; 		// write the MDR to the register
