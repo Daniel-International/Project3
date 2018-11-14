@@ -84,13 +84,13 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 				state = 4; // default next state
 				if (opcode == R_FORMAT) 
 					case (IR[5:0]) //case for the various R-type instructions
-						00: ALUOut = Rt << shamt //shift left logical
-						02: ALUOut = Rt >> shamt //shift right logical
-						// 8: ALUOut = ...  	//jump register 
-						32: ALUOut = Rs + Rt; 	//add 
-						33: ALUOut = Rs - Rt; 	//subtract 
-						36: ALUOut = Rs && Rt; 	//logical and
-						37: ALUOut = Rs || Rt; 	//logical or
+						00: ALUOut = Rt << shamt; 	//shift left logical
+						02: ALUOut = Rt >> shamt; 	//shift right logical
+						// 08: ALUOut = ...  		//jump register 
+						32: ALUOut = Rs + Rt; 		//add 
+						33: ALUOut = Rs - Rt; 		//subtract 
+						36: ALUOut = Rs && Rt; 		//logical and
+						37: ALUOut = Rs || Rt; 		//logical or
 						39: ALUOut = ~(Rs || Rt);	//logical nor
 						42: ALUOut = (Rs < Rt) ? 1 : 0; //set less than	
 						// other function fields for R-Format instructions go here
