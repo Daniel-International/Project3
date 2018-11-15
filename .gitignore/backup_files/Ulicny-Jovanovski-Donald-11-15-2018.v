@@ -40,31 +40,11 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 	
 	initial begin  	//Load a MIPS test program and data into Memory
 		
-		//I'm not sure if memory indices are supposed to be decimal or hex
-		Memory[2] = 32'H20080007;      //addi $t0, $zero, 7 
-		Memory[3] = 32'H8c090078;	//lw $t1, 120($zero) 
-		Memory[4] = 32'H01284020;	//add $t0, $t1, $t0 
-		Memory[5] = 32'H3109002e;	//andi $t1, $t0, 46 
-		Memory[6] = 32'H01284024;	//and $t0 ,$t1, $t0 
-		Memory[7] = 32'H11090000;	//beq $t0, $t1, LOOP 
-		Memory[8] = 32'H15090000;	//bne $t0, $t1, LOOP1
-		Memory[9] = 32'H08000000;	//j LOOP 
-		Memory[10] = 32'H0c000000;	//jal LOOP1 
-		Memory[11] = 32'H03e00008;	//jr $ra 
-		Memory[12] = 32'H212a004d;	//addi $t2, $t1, 77 
-		Memory[13] = 32'H01494027;	//nor $t0, $t2, $t1 
-		Memory[14] = 32'H01484825;	//or $t1, $t2, $t0 
-		Memory[15] = 32'H35480011;	//ori $t0, $t2, 17 
-		Memory[16] = 32'H012a402a;	//slt $t0, $t1, $t2 
-		Memory[17] = 32'H29490096;	//slti $t1, $t2, 150 
-		Memory[18] = 32'H00094080;	//sll $t0, $t1, 2 
-		Memory[19] = 32'H00094082;	//srl $t0, $t1, 2 
-		Memory[20] = 32'Ha1090009;	//sb $t1, 9($t0) 
-		Memory[21] = 32'Hac080078;	//sw $t0, 120($zero) 
-		Memory[22] = 32'H01284022;	//sub $t0, $t1, $t0 
-		//Memory[ ] = ...jm
-		//Memory[ ] = ...swap
-		
+		//Memory[2] =  ...place binary instruction...  ;       //  show the actual MIPS assembly instruction as a comment
+		//Memory[3] =  ...place binary instruction...  ;       //  show the actual MIPS assembly instruction as a comment
+ 
+		//Memory[30] = ...place binary instruction...  ;       //  show the actual MIPS assembly instruction as a comment
+
 	end
 	
 	
@@ -106,7 +86,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					case (IR[5:0]) //case for the various R-type instructions
 						00: ALUOut = Rt << shamt; 	//shift left logical
 						02: ALUOut = Rt >> shamt; 	//shift right logical
-						08: ALUOut = Rs 		//jump register 
+						// 08: ALUOut = ...  		//jump register 
 						32: ALUOut = Rs + Rt; 		//add 
 						33: ALUOut = Rs - Rt; 		//subtract 
 						36: ALUOut = Rs && Rt; 		//logical and
@@ -119,18 +99,16 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 
 				else if (opcode == JUMP) begin
 					// TODO
-					// PC = 
 				end
 
 				else if (opcode == JUMP_AND_LINK) begin
 					// TODO
-					// ALUOut = PC + 8;
 				end
 
 				else if (opcode == BNE) begin
 					if (Rs != Rt)
-						PC <= ALUOut; //branch taken: update PC
-					state = 1;	// BNE finished, return to first state
+						PC <= ALUOut;
+					state = 1;
 				end
 
 				else if (opcode == BEQ) begin
@@ -144,7 +122,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 
 
 				else if (opcode == SLTI) begin
-					ALUOut <= Rs < SignExtend ? 1 : 0;
+					// TODO
 				end
 
 				else if (opcode == ANDI)
@@ -166,11 +144,11 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 				end // R-type
 				
 				else if (opcode == JUMP) begin
-					// TODO
+					// TODO 
 				end
 
 				else if (opcode == JUMP_AND_LINK) begin
-					// TODO
+					// TODO 
 				end
 
 				else if (opcode == ADDI) begin
