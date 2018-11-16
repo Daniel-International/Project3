@@ -30,7 +30,7 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 	assign opcode = IR[31:26]; //opcode is upper 6 bits
 		//sign extension of lower 16-bits of instruction
 	assign SignExtend = {{16{IR[15]}},IR[15:0]}; 
-	assign PCOffset = SignExtend << 2; //PC offset is shifted
+	assign PCOffset = SignExtend << 2; //PC offset is shifted 
 	
 	
 	wire [31:0] reg8;
@@ -173,24 +173,10 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					// TODO
 				end
 
-				else if (opcode == ADDI) begin
+				else if ((opcode == ADDI) | (opcode == SLTI) | (opcode == ANDI) | (opcode == ORI) begin
 					Regs[IR[20:16]] <= ALUOut;	// write result
 					state = 1;
-				end	// ADDI
-
-				else if (opcode == SLTI) begin
-					// TODO
-				end
-
-				else if (opcode == ANDI) begin
-					Regs[IR[20:16]] <= ALUOut; // write result
-					state = 1;
-				end	// ANDI
-
-				else if (opcode == ORI) begin
-					Regs[IR[20:16]] <= ALUOut; // write result
-					state = 1;
-				end	// ORI
+				end	// immediate instructions
 
 				else if (opcode == STORE_BYTE) begin
 					// TODO
