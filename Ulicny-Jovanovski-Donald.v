@@ -1,7 +1,7 @@
 module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 	parameter R_FORMAT		= 6'b000000;
 	parameter JUMP	   		= 6'b000010;
-	parameter JUMP_AND_LINK = 6'b000011;
+	parameter JUMP_AND_LINK 	= 6'b000011;
 	parameter BEQ 	   		= 6'b000100;
 	parameter BNE	   		= 6'b000101;
 	parameter ADDI	   		= 6'b001000;
@@ -9,9 +9,11 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 	parameter ANDI			= 6'b001100;
 	parameter ORI			= 6'b001101;
 	parameter LW  	   		= 6'b100011;
-	parameter STORE_BYTE	= 6'b101000;
+	parameter STORE_BYTE		= 6'b101000;
 	parameter SW  	   		= 6'b101011;
-	//TODO: JM and SWAP instructions
+	parameter JM			= 6'b100101;
+	parameter SWAP			= 6'b100001;
+	//JM and SWAP instructions included
 	// other opcodes go here
 	//....
 	
