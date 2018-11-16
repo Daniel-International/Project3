@@ -118,14 +118,14 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					endcase
 
 				else if (opcode == JUMP) begin
-					// TODO
-					// PC = 
-				end
+					PC <= IR[25:0];
+					state = 1;
+				end	// JUMP
 
 				else if (opcode == JUMP_AND_LINK) begin
-					// TODO
-					// ALUOut = PC + 8;
-				end
+					ALUOut <= PC + 8;
+					PC <= IR[25:0];
+				end	// JUMP_AND_LINK
 
 				else if (opcode == BNE) begin
 					if (Rs != Rt)
@@ -164,13 +164,9 @@ module CPU (clock,PC, IR, ALUOut, MDR, Rs, Rt, reg8);
 					Regs[IR[15:11]] <= ALUOut; // write the result
 					state = 1;
 				end // R-type
-				
-				else if (opcode == JUMP) begin
-					// TODO
-				end
 
 				else if (opcode == JUMP_AND_LINK) begin
-					// TODO
+					Regs[31] <= ALUOut
 				end
 
 				else if ((opcode == ADDI) | (opcode == SLTI) | (opcode == ANDI) | (opcode == ORI) begin
